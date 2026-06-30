@@ -5,7 +5,7 @@ import connectDB from './configs/DB.js';
 import { clerkMiddleware } from '@clerk/express';
 import { serve } from 'inngest/express';
 import { inngest, functions } from './inngest/index.js';
-import ShowRouter from './routes/ShowRoute.js';
+import ShowRouter from './routes/showRoute.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -26,7 +26,19 @@ await connectDB();
 // );
 
 app.use(express.json());
-app.use(cors());
+
+const allowedOrigins = [
+  'http://localhost:5173', // Vite dev server
+  process.env.CLIENT_URL   // Your deployed frontend URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(clerkMiddleware());
 
 app.get('/', (req, res) => res.send('Server is Live!'));
