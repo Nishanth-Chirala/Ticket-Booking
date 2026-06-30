@@ -5,9 +5,10 @@ const connectDB = async () => {
     mongoose.connection.on('connected', () =>
       console.log('DataBase Connected')
     );
-    await mongoose.connect(`${process.env.MONGODB_URI}/qucikshow `);
+    await mongoose.connect(`${process.env.MONGODB_URI}/quickshow`);
   } catch (error) {
     console.log(error.message);
+    console.log("data")
   }
 };
 
