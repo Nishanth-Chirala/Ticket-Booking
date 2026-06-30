@@ -3,14 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react';
 import { useClerk, UserButton, useUser } from '@clerk/react';
-// import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../context/AppContextInstance';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useUser();
   const { openSignIn } = useClerk();
   const navigate = useNavigate();
 
-  // const { favoriteMovies } = useAppContext();
+  const { favoriteMovies } = useAppContext();
 
   return (
     <div>
@@ -65,7 +65,7 @@ const Navbar = () => {
           >
             Releases
           </Link>
-          {/* {favoriteMovies.length > 0 && ( */}
+          {favoriteMovies.length > 0 && (
             <Link
               onClick={() => {
                 scrollTo(0, 0);
@@ -75,7 +75,7 @@ const Navbar = () => {
             >
               Favorites
             </Link>
-          {/* )} */}
+           )} 
         </div>
         <div className="flex items-center gap-8">
           <SearchIcon className="max-md:hidden size-6 cursor-pointer" />

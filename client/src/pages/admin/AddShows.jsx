@@ -3,12 +3,13 @@ import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { CheckIcon, DeleteIcon, StarIcon } from 'lucide-react';
 import { KConverter } from '../../lib/KConverter';
-
 import toast from 'react-hot-toast';
-import { dummyShowsData } from '../../assets/assets';
+
+import { useAppContext } from '../../context/AppContextInstance';
 
 const AddShows = () => {
 
+ const { axios, getToken,image_base_url } = useAppContext();
 
   const currency = import.meta.env.VITE_CURRENCY;
 
@@ -57,40 +58,36 @@ const AddShows = () => {
     try {
       setAddingShow(true);
 
-      if (
-        !selectedMovies ||
-        Object.keys(dateTimeSelection).length === 0 ||
-        !showPrice
-      ) {
+      if (!selectedMovies || Object.keys(dateTimeSelection).length === 0 ||!showPrice) {
         return toast('Missing Required Fields');
       }
 
-      // const showsInput = Object.entries(dateTimeSelection).flatMap(
-      //   ([date, times]) =>
-      //     times.map((time) => ({
-      //       date,
-      //       time,
-      //     }))
-      // );
+      const showsInput = Object.entries(dateTimeSelection).flatMap(
+        ([date, times]) =>
+          times.map((time) => ({
+            date,
+            time,
+          }))
+      );
 
-      // const payload = {
-      //   movieId: selectedMovies,
-      //   showsInput,
-      //   showPrice: Number(showPrice),
-      // };
+      const payload = {
+        movieId: selectedMovies,
+        showsInput,
+        showPrice: Number(showPrice),
+      };
 
-      // const { data } = await axios.post('/api/show/add', payload, {
-      //   headers: { Authorization: `Bearer ${await getToken()}` },
-      // });
+      const { data } = await axios.post('/api/show/add', payload, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
 
-      // if (data.success) {
-      //   toast.success(data.message);
-      //   setSelectedMovies(null);
-      //   setDateTimeSelection({});
-      //   setShowPrice('');
-      // } else {
-      //   toast.error(data.message);
-      // }
+      if (data.success) {
+        toast.success(data.message);
+        setSelectedMovies(null);
+        setDateTimeSelection({});
+        setShowPrice('');
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
       console.error('Submission Error: ', error);
       toast.error('An error Occured Please try again');
@@ -100,18 +97,21 @@ const AddShows = () => {
   };
 
  useEffect(() => {
-  const fetchNowPlayingMovies = async () => {
+ const fetchNowPlayingMovies = async () => {
     try {
-      // Pushes the state setter clear of the initial mounting stack
-      setTimeout(() => {
-        setNowPlayingMovies(dummyShowsData);
-      }, 300);
+      const { data } = await axios.get('/api/show/now-playing', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+
+      if (data.success) {
+        setNowPlayingMovies(data.movies);
+      }
     } catch (error) {
       console.error('Error Fetching Movies: ', error);
     }
   };
   fetchNowPlayingMovies();
-}, []);
+}, [getToken,axios]);
 
 
   return nowPlayingMovies.length > 0 ? (
@@ -130,7 +130,7 @@ const AddShows = () => {
             >
               <div className="relative rounded-lg overflow-hidden">
                 <img
-                  src={movie.poster_path}
+                  src={image_base_url+movie.poster_path}
                   alt="Add-Show_Image"
                   className="w-full object-cover brightness-90"
                 />

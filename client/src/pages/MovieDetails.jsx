@@ -6,39 +6,72 @@ import timeFormat from '../lib/timeFormat';
 import DateSelect from '../components/DateSelect';
 import MovieCard from '../components/MovieCard';
 import Loading from '../components/Loading';
+import toast from 'react-hot-toast';
+import { useAppContext } from '../context/AppContextInstance';
 // import toast from 'react-hot-toast';
-import {  dummyDateTimeData, dummyShowsData } from '../assets/assets';
+
 const MovieDetails = () => {
   const { id } = useParams();
   const [show, setShow] = useState(null);
   const navigate = useNavigate();
-console.log(id)
+
+  const {
+    shows,
+    axios,
+    getToken,
+    user,
+    fetchFavoriteMovies,
+    favoriteMovies,
+    image_base_url,
+  } = useAppContext();
   
-useEffect(() => {
-  // 1. Define the fetching logic directly inside the effect
-  const fetchAndSetShow = () => {
-    const foundMovie = dummyShowsData.find((item) => String(item._id) === String(id));
+  const handleFavorite = async () => {
+    try {
+      if (!user) {
+        return toast.error('Please Login to proceed');
+      }
 
-    if (!foundMovie) {
-      console.error(`No movie found in dummyShowsData matching ID: ${id}`);
-      return;
+      const { data } = await axios.post(
+        '/api/user/update-favorites',
+        {
+          movieId: id,
+        },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+
+      if (data.success) {
+        await fetchFavoriteMovies();
+        toast.success(data.message);
+      }
+    } catch (error) {
+      console.log(error);
     }
-
-    // 2. Safe state update tied directly to the id dependency change
-    setShow({
-      movie: foundMovie,
-      dateTime: dummyDateTimeData
-    });
   };
 
-  fetchAndSetShow();
-}, [id]); // 3. Only 'id' is needed here now, satisfying ESLint completely
+useEffect(() => {
+  // 1. Define the fetching logic directly inside the effect
+  const getShow = async () => {
+    try {
+      const { data } = await axios.get(`/api/show/${id}`);
+
+      if (data.success) {
+        setShow(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  getShow();
+}, [id,axios,user]); // 3. Only 'id' is needed here now, satisfying ESLint completely
 
   return show ? (
     <div className="px-6 md:px-16 lg:px-40 pt-30 md:pt-50">
       <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
         <img
-          src={show.movie.poster_path}
+          src={image_base_url+show.movie.poster_path}
           alt="Movie Poster"
           className="max-md:mx-auto rounded-xl h-104 max-w-70 object-cover"
         />
@@ -77,12 +110,12 @@ useEffect(() => {
             </a>
             <button className="bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95">
               <Heart
-                // onClick={handleFavorite}
-                // className={` w-5 h-5-${
-                //   favoriteMovies.find((movie) => movie._id === id)
-                //     ? 'fill-primary text-primary'
-                //     : ''
-                // } `}
+                onClick={handleFavorite}
+                className={` w-5 h-5-${
+                  favoriteMovies.find((movie) => movie._id === id)
+                    ? 'fill-primary text-primary'
+                    : ''
+                } `}
               />
             </button>
           </div>
@@ -110,7 +143,7 @@ useEffect(() => {
       <p className="text-lg font-medium mt-20 mb-8">You May Also Like</p>
 
       <div className="flex flex-wrap max-sm:justify-center gap-8">
-        {dummyShowsData.slice(0, 4).map((movie, index) => (
+        {shows.slice(0, 4).map((movie, index) => (
           <MovieCard key={index} movie={movie} />
         ))}
       </div>

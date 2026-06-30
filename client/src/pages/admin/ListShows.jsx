@@ -2,35 +2,28 @@ import { useEffect, useState } from 'react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
-import { dummyShowsData } from '../../assets/assets';
-
+import { useAppContext } from '../../context/AppContextInstance';
 
 const ListShows = () => {
   const currency = import.meta.env.VITE_CURRENCY;
   
+const { axios, getToken, user } = useAppContext();
 
   const [shows, setShows] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const getAllShows = async () => {
+  const getAllShows = async () => {
     try {
-      setShows([{
-        movie:dummyShowsData[1],
-        occupiedSeats:{
-            A1:'user_1',
-            B1:'user_2',
-            C1:'user_3'
-        },
-        showPrice:59,
-        showDateTime:'2025-06-25TO02:30:00.000Z'
+      const { data } = await axios.get('/api/admin/all-shows', {
+        headers: { Authrization: `Bearer ${await getToken()}` },
+      });
 
+      setShows(data.shows);
 
-      }]);
       setLoading(false);
-    } 
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   };
@@ -38,7 +31,7 @@ const ListShows = () => {
 
       getAllShows();
     
-  }, []);
+  }, [user,getToken,axios]);
 
   return !loading ? (
     <>

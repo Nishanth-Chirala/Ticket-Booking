@@ -2,31 +2,34 @@ import { useEffect, useState } from 'react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
-import { dummyBookingData } from '../../assets/assets';
-// import { useAppContext } from '../../context/AppContext';
+
+import { useAppContext } from '../../context/AppContextInstance';
 
 const ListBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY;
-//   const { axios, getToken, user } = useAppContext();
+  const { axios, getToken, user } = useAppContext();
 
   const [bookings, setBookings] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const getAllBookings = async () => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      setBookings(dummyBookingData);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (user) {
+      const getAllBookings = async () => {
+        try {
+          const { data } = await axios.get('/api/admin/all-bookings', {
+            headers: { Authrization: `Bearer ${await getToken()}` },
+          });
 
-  getAllBookings();
-}, []); // Empty dependency array is perfectly safe now
+          setBookings(data.bookings);
+        } catch (error) {
+          console.error(error);
+        }
+        setLoading(false);
+      };
+      getAllBookings();
+    }
+  }, [user, axios, getToken]); // Empty dependency array is perfectly safe now
 
 
   return !loading ? (
