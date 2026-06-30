@@ -13,31 +13,31 @@ import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 
-// Connect Database
+const port = process.env.PORT
+
 await connectDB();
 
-// Stripe Webhook (Enable if needed)
 // app.use(
 //   '/api/stripe',
-//   express.raw({ type: 'application/json' }),
+//   express.raw({
+//     type: 'application/json',
+//   }),
 //   stripeWebhooks
 // );
 
-// Middlewares
 app.use(express.json());
 app.use(cors());
 app.use(clerkMiddleware());
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Server is Live!');
-});
-
+app.get('/', (req, res) => res.send('Server is Live!'));
 app.use('/api/inngest', serve({ client: inngest, functions }));
 app.use('/api/show', ShowRouter);
 app.use('/api/booking', bookingRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/user', userRoutes);
 
-// Export app for Vercel
-export default app;
+app.listen(port, () =>
+  console.log(`Server listening at http://localhost:${port}`)
+);
+
+export default app; 
