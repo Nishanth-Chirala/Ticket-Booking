@@ -1,5 +1,7 @@
 import { clerkClient } from '@clerk/express';
 
+// server/middleware/auth.js
+
 const normalizeRole = (value) => {
   if (typeof value === 'string') {
     return value.toLowerCase();
@@ -13,7 +15,12 @@ const normalizeRole = (value) => {
 };
 
 export const isAdminUser = (user) => {
-  const metadata = user?.publicMetadata || user?.privateMetadata || {};
+  // Merge both, instead of letting a truthy empty object win
+  const metadata = {
+    ...(user?.publicMetadata || {}),
+    ...(user?.privateMetadata || {}),
+  };
+
   const role = normalizeRole(metadata.role || metadata.isAdmin || metadata.admin);
 
   if (role === 'admin') {

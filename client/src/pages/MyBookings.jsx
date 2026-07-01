@@ -1,10 +1,11 @@
-import { useLayoutEffect, useState } from 'react';
+import {  useState } from 'react';
 import Loading from '../components/Loading';
 import BlurCircle from '../components/BlurCircle';
 import timeFormat from '../lib/timeFormat';
 import { dateFormat } from '../lib/dateFormat';
 import { useAppContext } from '../context/AppContextInstance';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const MyBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY;
@@ -17,7 +18,7 @@ const MyBookings = () => {
 
 
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (user) {
       const getMyBookings = async () => {
         try {
