@@ -125,10 +125,10 @@ export const getOccupiedSeats = async (req, res) => {
     );
 
     // Validate if showId is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(showId)) {
-      console.log('getOccupiedSeats - Invalid ObjectId received:', showId);
-      return res.json({ success: false, message: 'Invalid show ID format' });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(showId)) {
+    //   console.log('getOccupiedSeats - Invalid ObjectId received:', showId);
+    //   return res.json({ success: false, message: 'Invalid show ID format' });
+    // }
 
     const showData = await Show.findById(showId);
     if (!showData) {

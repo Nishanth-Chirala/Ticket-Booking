@@ -1,9 +1,18 @@
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
 import User from '../models/User.js';
+import { clerkClient } from '@clerk/express';
+import { isAdminUser } from '../middleware/auth.js';
 
 export const isAdmin = async (req, res) => {
-  res.json({ success: true, isAdmin: true });
+  try {
+    const { userId } = req.auth();
+    const user = await clerkClient.users.getUser(userId);
+
+    res.json({ success: true, isAdmin: isAdminUser(user) });
+  } catch (error) {
+    res.json({ success: false, message: 'Not Authorized' });
+  }
 };
 
 export const getDashBoardData = async (req, res) => {
