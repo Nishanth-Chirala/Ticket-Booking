@@ -9,7 +9,7 @@ import {
 
 const adminRouter = express.Router();
 
-adminRouter.get('/is-admin', protectAdmin, isAdmin);
+adminRouter.get('/is-admin', isAdmin);
 adminRouter.get('/dashboard', protectAdmin, getDashBoardData);
 adminRouter.get('/all-shows', protectAdmin, getAllShows);
 adminRouter.get('/all-bookings', protectAdmin, getAllBookings);

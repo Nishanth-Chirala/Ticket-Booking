@@ -4,14 +4,22 @@ import User from '../models/User.js';
 import { clerkClient } from '@clerk/express';
 import { isAdminUser } from '../middleware/auth.js';
 
+// controllers/adminController.js
 export const isAdmin = async (req, res) => {
   try {
-    const { userId } = req.auth();
-    const user = await clerkClient.users.getUser(userId);
+    const { userId } = req.auth;
 
-    res.json({ success: true, isAdmin: isAdminUser(user) });
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Not Authenticated' });
+    }
+
+    const user = await clerkClient.users.getUser(userId);
+    const admin = isAdminUser(user);
+
+    res.json({ success: true, isAdmin: admin });
   } catch (error) {
-    res.json({ success: false, message: 'Not Authorized' });
+    console.error('[isAdmin] Error:', error.message);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

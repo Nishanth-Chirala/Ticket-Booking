@@ -2,6 +2,8 @@ import { clerkClient } from '@clerk/express';
 
 // server/middleware/auth.js
 
+// server/middleware/auth.js
+
 const normalizeRole = (value) => {
   if (typeof value === 'string') {
     return value.toLowerCase();
@@ -41,17 +43,27 @@ export const isAdminUser = (user) => {
   return adminEmails.includes(primaryEmail.toLowerCase());
 };
 
+// middleware/auth.js
 export const protectAdmin = async (req, res, next) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
+
+    if (!userId) {
+      console.error('[protectAdmin] No userId in req.auth — user not authenticated');
+      return res.status(401).json({ success: false, message: 'Not Authenticated' });
+    }
+
     const user = await clerkClient.users.getUser(userId);
 
     if (!isAdminUser(user)) {
-      return res.json({ success: false, message: 'Not Authorized' });
+      console.error(`[protectAdmin] User ${userId} is not an admin`);
+      return res.status(403).json({ success: false, message: 'Not Authorized' });
     }
 
+    req.user = user; // Attach user to request for downstream use
     next();
   } catch (error) {
-    return res.json({ success: false, message: 'Not Authorized' });
+    console.error('[protectAdmin] Unexpected error:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// client/src/context/AppContext.jsx
+import { useState } from 'react';
 import axios from 'axios';
 import { useAuth, useUser } from '@clerk/react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,10 +8,8 @@ import { AppContext } from './AppContextInstance';
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
-
-
 export const AppProvider = ({ children }) => {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(null); // null = not checked yet
   const [shows, setShows] = useState([]);
   const [favoriteMovies, setFavoriteMovies] = useState([]);
 
@@ -23,40 +22,54 @@ export const AppProvider = ({ children }) => {
 
   const fetchIsAdmin = async () => {
     try {
+      const token = await getToken();
+
+      if (!token) {
+        console.log('[fetchIsAdmin] No token available yet');
+        setIsAdmin(false);
+        return;
+      }
+
       const { data } = await axios.get('/api/admin/is-admin', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      setIsAdmin(data.isAdmin);
+      setIsAdmin(data.isAdmin ?? false);
 
       if (!data.isAdmin && location.pathname.startsWith('/admin')) {
         navigate('/');
         toast.error('You are not authorized to access the admin dashboard');
       }
     } catch (error) {
-      console.error(error);
+      console.error('[fetchIsAdmin] Error:', error.response?.status, error.response?.data);
+      setIsAdmin(false);
     }
   };
 
-
   const fetchFavoriteMovies = async () => {
     try {
+      const token = await getToken();
+
+      if (!token) {
+        console.log('[fetchFavoriteMovies] No token available yet');
+        return;
+      }
+
       const { data } = await axios.get('/api/user/favorites', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
-        
+
       if (data.success) {
         setFavoriteMovies(data.movies);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      console.error(error);
+      console.error('[fetchFavoriteMovies] Error:', error);
     }
   };
 
-  useEffect(() => {
-      const fetchShows = async () => {
+  const fetchShows = async () => {
     try {
       const { data } = await axios.get('/api/show/all');
       if (data.success) {
@@ -69,53 +82,11 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-    fetchShows();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-          const fetchIsAdmin = async () => {
-    try {
-      const { data } = await axios.get('/api/admin/is-admin', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
-
-      setIsAdmin(data.isAdmin);
-
-      if (!data.isAdmin && location.pathname.startsWith('/admin')) {
-        navigate('/');
-        toast.error('You are not authorized to access the admin dashboard');
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-
-  const fetchFavoriteMovies = async () => {
-    try {
-      const { data } = await axios.get('/api/user/favorites', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
-
-      if (data.success) {
-        setFavoriteMovies(data.movies);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-      fetchIsAdmin();
-      fetchFavoriteMovies();
-    }
-  }, [user,getToken,navigate,location.pathname]);
-
   const value = {
     axios,
     fetchFavoriteMovies,
     fetchIsAdmin,
+    fetchShows,
     user,
     getToken,
     navigate,
@@ -125,6 +96,9 @@ export const AppProvider = ({ children }) => {
     image_base_url,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
 };
-

@@ -6,7 +6,7 @@ import Movie from '../models/Movie.js';
 
 export const getUserBookings = async (req, res) => {
   try {
-    const user = req.auth().userId;
+    const user = req.auth.userId;
 
     const bookings = await Booking.find({ user })
       .populate({
@@ -29,7 +29,7 @@ export const getUserBookings = async (req, res) => {
 export const updatFavorite = async (req, res) => {
   try {
     const { movieId } = req.body;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     const user = await clerkClient.users.getUser(userId);
 
@@ -60,7 +60,7 @@ export const updatFavorite = async (req, res) => {
 
 export const getFavorite = async (req, res) => {
   try {
-    const user = await clerkClient.users.getUser(req.auth().userId);
+    const user = await clerkClient.users.getUser(req.auth.userId);
 
     const favorites = user.privateMetadata.favorites;
 
