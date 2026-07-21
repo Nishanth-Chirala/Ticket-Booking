@@ -5,7 +5,7 @@ import connectDB from './configs/DB.js';
 import { clerkMiddleware } from '@clerk/express';
 import { serve } from 'inngest/express';
 import { inngest, functions } from './inngest/index.js';
-import ShowRouter from './routes/ShowRoute.js';
+import ShowRouter from './routes/showRoute.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
