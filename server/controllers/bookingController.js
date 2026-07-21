@@ -1,7 +1,7 @@
 import { inngest } from '../inngest/index.js';
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
-// import stripe from 'stripe';
+import stripe from 'stripe';
 import mongoose from 'mongoose';
 
 const checkSeatsAvailability = async (showId, selectedSeats) => {
@@ -19,7 +19,7 @@ const checkSeatsAvailability = async (showId, selectedSeats) => {
 
     const occupiedSeats = showData.occupiedSeats;
 
-    const isAnySeatTaken = selectedSeats.some((seat) => occupiedSeats[seat]);//.some(...) (Array Method): A built-in JavaScript array method. It loops through your array and returns true if at least one item passes the condition inside it. If none pass, it returns false.
+    const isAnySeatTaken = selectedSeats.some((seat) => occupiedSeats[seat]);
 
     return !isAnySeatTaken;
   } catch (error) {
@@ -30,7 +30,7 @@ const checkSeatsAvailability = async (showId, selectedSeats) => {
 
 export const createBooking = async (req, res) => {
   try {
-    const { userId } = req.auth;
+    const { userId } = req.auth();
     const { showId, selectedSeats } = req.body;
     const { origin } = req.headers;
 
@@ -70,7 +70,7 @@ export const createBooking = async (req, res) => {
     showData.markModified('occupiedSeats');
     await showData.save();
 
-    // const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 
     const line_items = [
       {
@@ -85,16 +85,16 @@ export const createBooking = async (req, res) => {
       },
     ];
 
-    // const session = await stripeInstance.checkout.sessions.create({
-    //   success_url: `${origin}/loading/my-bookings`,
-    //   cancel_url: `${origin}/my-bookings`,
-    //   line_items: line_items,
-    //   mode: 'payment',
-    //   metadata: {
-    //     bookingId: booking._id.toString(),
-    //   },
-    //   expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-    // });
+    const session = await stripeInstance.checkout.sessions.create({
+      success_url: `${origin}/loading/my-bookings`,
+      cancel_url: `${origin}/my-bookings`,
+      line_items: line_items,
+      mode: 'payment',
+      metadata: {
+        bookingId: booking._id.toString(),
+      },
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+    });
 
     booking.paymentLink = session.url;
     await booking.save();
@@ -125,10 +125,10 @@ export const getOccupiedSeats = async (req, res) => {
     );
 
     // Validate if showId is a valid ObjectId
-    // if (!mongoose.Types.ObjectId.isValid(showId)) {
-    //   console.log('getOccupiedSeats - Invalid ObjectId received:', showId);
-    //   return res.json({ success: false, message: 'Invalid show ID format' });
-    // }
+    if (!mongoose.Types.ObjectId.isValid(showId)) {
+      console.log('getOccupiedSeats - Invalid ObjectId received:', showId);
+      return res.json({ success: false, message: 'Invalid show ID format' });
+    }
 
     const showData = await Show.findById(showId);
     if (!showData) {

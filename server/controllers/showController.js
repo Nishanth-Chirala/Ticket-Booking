@@ -8,7 +8,7 @@ export const getNowPlayingMovies = async (req, res) => {
     const { data } = await axios.get(
       'https://api.themoviedb.org/3/movie/now_playing',
       {
-        headers: {accept: 'application/json', Authorization: `Bearer ${process.env.TMDB_API_KEY}` },
+        headers: { Authorization: `Bearer ${process.env.TMDB_API_KEY}` },
       }
     );
     const movies = data.results;
@@ -125,7 +125,14 @@ export const getShow = async (req, res) => {
       if (!dateTime[date]) {
         dateTime[date] = [];
       }
-      
+      console.log(
+        'Show ID being sent to frontend:',
+        show._id,
+        'Type:',
+        typeof show._id,
+        'Stringified:',
+        show._id.toString()
+      );
       dateTime[date].push({ time: show.showDateTime, showId: show._id.toString() });
     });
 

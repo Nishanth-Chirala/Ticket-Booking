@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { dateFormat } from '../../lib/dateFormat';
-
-import { useAppContext } from '../../context/AppContextInstance';
+import { useAppContext } from '../../context/AppContext';
 
 const ListBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY;
@@ -13,24 +12,24 @@ const ListBookings = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const getAllBookings = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/all-bookings', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+
+      setBookings(data.bookings);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (user) {
-      const getAllBookings = async () => {
-        try {
-          const { data } = await axios.get('/api/admin/all-bookings', {
-            headers: { Authrization: `Bearer ${await getToken()}` },
-          });
-
-          setBookings(data.bookings);
-        } catch (error) {
-          console.error(error);
-        }
-        setLoading(false);
-      };
       getAllBookings();
     }
-  }, [user, axios, getToken]); // Empty dependency array is perfectly safe now
-
+  }, [user]);
 
   return !loading ? (
     <>
@@ -54,7 +53,7 @@ const ListBookings = () => {
                 key={index}
                 className="border-b border-primary/20 bg-primary/5 even:bg-primary/10"
               >
-                <td className="p-2 min-w-45 pl-5">{item.user.name}</td>
+                <td className="p-2 min-w-45 pl-5">{item.user?.name}</td>
 
                 <td className="p-2 ">{item.show.movie.title}</td>
 

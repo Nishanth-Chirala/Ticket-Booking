@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { StarIcon } from 'lucide-react';
 import timeFormat from '../lib/timeFormat';
-import { useAppContext } from '../context/AppContextInstance';
+import { useAppContext } from '../context/AppContext';
 const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
 
@@ -9,7 +9,8 @@ const MovieCard = ({ movie }) => {
 
   return (
     <div
-      className="flex flex-col justify-between p-3 bg-gray-800 rounded-2xl hover:-translate-y-1 transition duration-300 w-66"
+      className="flex flex-col justify-between p-3 bg-gray-800 rounded-2xl hover:-translate-y-1 transition duration-300 w-66
+  "
     >
       <img
         src={image_base_url + movie.backdrop_path}

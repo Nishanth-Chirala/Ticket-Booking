@@ -10,15 +10,12 @@ import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import BlurCircle from '../../components/BlurCircle';
 import { dateFormat } from '../../lib/dateFormat';
-import { useAppContext } from '../../context/AppContextInstance';
+import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
-
-
 
 const Dashboard = () => {
   const currency = import.meta.env.VITE_CURRENCY;
   const { axios, getToken, user, image_base_url } = useAppContext();
-
 
   const [dashBoardData, SetDashBoardData] = useState({
     totalBookings: 0,
@@ -52,26 +49,28 @@ const Dashboard = () => {
     },
   ];
 
-  useEffect(() => {
-    const fetchDashBoardData = async () => {
-      try {
-        const { data } = await axios.get('/api/admin/dashboard', {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        });
+  const fetchDashBoardData = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/dashboard', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
 
-        if (data.success) {
-          SetDashBoardData(data.dashBoardData);
-          setLoading(false);
-        } else {
-          toast.error(data.message);
-        }
-      } catch (error) {
-        toast.error('Error Fetching DashBoard Data: ', error);
+      if (data.success) {
+        SetDashBoardData(data.dashBoardData);
+        setLoading(false);
+      } else {
+        toast.error(data.message);
       }
-    };
+    } catch (error) {
+      toast.error('Error Fetching DashBoard Data: ', error);
+    }
+  };
 
-    fetchDashBoardData();
-  }, [getToken,axios,user]);
+  useEffect(() => {
+    if (user) {
+      fetchDashBoardData();
+    }
+  }, [user]);
 
   return !loading ? (
     <>

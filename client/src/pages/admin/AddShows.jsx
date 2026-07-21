@@ -3,13 +3,11 @@ import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 import { CheckIcon, DeleteIcon, StarIcon } from 'lucide-react';
 import { KConverter } from '../../lib/KConverter';
+import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
 
-import { useAppContext } from '../../context/AppContextInstance';
-
 const AddShows = () => {
-
- const { axios, getToken,image_base_url } = useAppContext();
+  const { axios, getToken, user, image_base_url } = useAppContext();
 
   const currency = import.meta.env.VITE_CURRENCY;
 
@@ -39,13 +37,10 @@ const AddShows = () => {
   const handleRemoveTime = (date, time) => {
     setDateTimeSelection((prev) => {
       const filteredTimes = prev[date].filter((t) => t !== time);
-
       if (filteredTimes.length === 0) {
-        const updatedState = { ...prev };
-        delete updatedState[date]; // 0 unused variables created
-        return updatedState;
+        const { [date]: _, ...rest } = prev;
+        return rest;
       }
-
       return {
         ...prev,
         [date]: filteredTimes,
@@ -53,12 +48,15 @@ const AddShows = () => {
     });
   };
 
-
   const handleSubmit = async () => {
     try {
       setAddingShow(true);
 
-      if (!selectedMovies || Object.keys(dateTimeSelection).length === 0 ||!showPrice) {
+      if (
+        !selectedMovies ||
+        Object.keys(dateTimeSelection).length === 0 ||
+        !showPrice
+      ) {
         return toast('Missing Required Fields');
       }
 
@@ -95,9 +93,13 @@ const AddShows = () => {
 
     setAddingShow(false);
   };
+  useEffect(() => {
+    if (user) {
+      fetchNowPlayingMovies();
+    }
+  }, [user]);
 
- useEffect(() => {
- const fetchNowPlayingMovies = async () => {
+  const fetchNowPlayingMovies = async () => {
     try {
       const { data } = await axios.get('/api/show/now-playing', {
         headers: { Authorization: `Bearer ${await getToken()}` },
@@ -110,9 +112,6 @@ const AddShows = () => {
       console.error('Error Fetching Movies: ', error);
     }
   };
-  fetchNowPlayingMovies();
-}, [getToken,axios]);
-
 
   return nowPlayingMovies.length > 0 ? (
     <>
@@ -130,7 +129,7 @@ const AddShows = () => {
             >
               <div className="relative rounded-lg overflow-hidden">
                 <img
-                  src={image_base_url+movie.poster_path}
+                  src={image_base_url + movie.poster_path}
                   alt="Add-Show_Image"
                   className="w-full object-cover brightness-90"
                 />
@@ -188,7 +187,7 @@ const AddShows = () => {
             type="datetime-local"
             value={dateTimeInput}
             onChange={(e) => setDateTimeInput(e.target.value)}
-            className="outline-none rounded-md calendar"
+            className="outline-none rounded-md"
           />
 
           <button
@@ -210,7 +209,6 @@ const AddShows = () => {
             {Object.entries(dateTimeSelection).map(([date, times]) => (
               <li key={date}>
                 <div className="font-medium">{date}</div>
-
                 <div className="flex flex-wrap gap-2 mt-1 text-sm">
                   {times.map((time) => (
                     <div

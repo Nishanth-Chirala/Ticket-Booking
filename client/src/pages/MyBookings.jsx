@@ -1,11 +1,10 @@
-import {  useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
 import BlurCircle from '../components/BlurCircle';
 import timeFormat from '../lib/timeFormat';
 import { dateFormat } from '../lib/dateFormat';
-import { useAppContext } from '../context/AppContextInstance';
+import { useAppContext } from '../context/AppContext';
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
 
 const MyBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY;
@@ -16,28 +15,27 @@ const MyBookings = () => {
 
   const { axios, getToken, user, image_base_url } = useAppContext();
 
+  const getMyBookings = async () => {
+    try {
+      const { data } = await axios.get('/api/user/bookings', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
 
+      if (data.success) {
+        setBookings(data.bookings);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (user) {
-      const getMyBookings = async () => {
-        try {
-          const { data } = await axios.get('/api/user/bookings', {
-            headers: { Authorization: `Bearer ${await getToken()}` },
-          });
-
-          if (data.success) {
-            setBookings(data.bookings);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-
-        setLoading(false);
-      };
       getMyBookings();
     }
-  }, [user, getToken, axios]);
+  }, [user]);
 
   return !loading ? (
     <div className="relative pc-6 md:px-16 lg:px-40 placeholder-teal-300 md:pt-40 min-h-[80vh]">

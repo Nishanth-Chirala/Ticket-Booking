@@ -5,20 +5,13 @@ const Loading = () => {
   const { nextUrl } = useParams();
   const navigate = useNavigate();
 
- useEffect(() => {
-  // 1. Only set the timer if nextUrl actually has a valid value
-  if (!nextUrl) return;
-
-  // 2. Save the timer reference
-  const timer = setTimeout(() => {
-    navigate('/' + nextUrl);
-  }, 8000);
-
-  // 3. CLEANUP: If the user leaves the page before 8 seconds, clear the timer
-  return () => clearTimeout(timer);
-
-}, [nextUrl, navigate]); // 4. Essential dependencies tell React to watch for changes
-
+  useEffect(() => {
+    if (nextUrl) {
+      setTimeout(() => {
+        navigate('/' + nextUrl);
+      }, 8000);
+    }
+  }, []);
 
   return (
     <div className="flex justify-center items-center h-[80vh]">

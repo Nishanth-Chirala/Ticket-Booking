@@ -1,28 +1,32 @@
-/* 1. External fonts must come first */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
-/* 2. Framework imports come second */
-@import "tailwindcss"; 
-
-html{
-    scroll-behavior: smooth
-}
+@import 'tailwindcss';
 
 @theme {
-    --color-primary: #F84565;
-    --color-primary-dul: #D63854;
+  --color-primary: #f84565;
+  --color-primary: #d63854;
 }
 
 * {
-    font-family: "Outfit", sans-serif;
-    scrollbar-width: thin;
-    scrollbar-color: #787777 #1e1e1e;
+  font-family: 'Outfit', sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: #787777 #1e1e1e;
 }
 
 body {
-    color: white;
-    background-color: black;
+  color: white;
+  background-color: #09090b;
 }
-::-webkit-calendar-picker-indicator{
-    filter: invert(1);
+
+no-scrollbar {
+  scrollbar-width: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
