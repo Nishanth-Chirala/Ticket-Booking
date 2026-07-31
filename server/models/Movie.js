@@ -1,8 +1,16 @@
 import mongoose from 'mongoose';
 
+const castSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    character_name: { type: String },
+    profile_path: { type: String },
+  },
+  { _id: false }
+);
+
 const movieSchema = new mongoose.Schema(
   {
-    _id: { type: String, required: true },
     title: { type: String, required: true },
     overview: { type: String, required: true },
     poster_path: { type: String, required: true },
@@ -11,9 +19,12 @@ const movieSchema = new mongoose.Schema(
     original_language: { type: String },
     tagline: { type: String },
     genres: { type: Array, required: true },
-    casts: { type: Array, required: true },
+    casts: { type: [castSchema], default: [] },
     vote_average: { type: Number, required: true },
     runtime: { type: Number, required: true },
+    status: { type: String, default: 'Coming Soon' },
+    director: { type: String },
+    trailer_url: { type: String },
   },
   {
     timestamps: true,

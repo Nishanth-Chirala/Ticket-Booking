@@ -1,4 +1,5 @@
 import {
+  FilmIcon,
   LayoutDashboardIcon,
   ListCollapseIcon,
   ListIcon,
@@ -16,6 +17,7 @@ const AdminSideBar = () => {
 
   const adminNavLinks = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboardIcon },
+    { name: 'Add Movies', path: '/admin/add-movies', icon: FilmIcon },
     { name: 'Add Shows', path: '/admin/add-shows', icon: PlusSquareIcon },
     { name: 'List Shows', path: '/admin/list-shows', icon: ListIcon },
     {

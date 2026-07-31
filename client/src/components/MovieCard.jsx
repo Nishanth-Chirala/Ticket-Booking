@@ -6,6 +6,9 @@ const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
 
   const { image_base_url } = useAppContext();
+  const posterUrl = movie.backdrop_path?.startsWith('http')
+    ? movie.backdrop_path
+    : image_base_url + movie.backdrop_path;
 
   return (
     <div
@@ -13,7 +16,7 @@ const MovieCard = ({ movie }) => {
   "
     >
       <img
-        src={image_base_url + movie.backdrop_path}
+        src={posterUrl}
         alt=""
         className="rounded-lg h-52 w-full object-cover object-right-bottom cursor-pointer"
         onClick={() => {
@@ -26,8 +29,8 @@ const MovieCard = ({ movie }) => {
       <p className="text-sm text-gray-400 mt-2">
         {new Date(movie.release_date).getFullYear()}~
         {movie.genres
-          .slice(0, 2)
-          .map((genre) => genre.name)
+          ?.slice(0, 2)
+          .map((genre) => genre.name || genre)
           .join(' | ')}
         ~ {timeFormat(movie.runtime)}
       </p>
@@ -45,7 +48,7 @@ const MovieCard = ({ movie }) => {
 
         <p className="flex items-center gap-1 text-sm text-gray-400 mt-1 pr-1">
           <StarIcon className="size-4 text-primary fill-primary" />
-          {movie.vote_average.toFixed(1)}
+          {Number(movie.vote_average || 0).toFixed(1)}
         </p>
       </div>
     </div>

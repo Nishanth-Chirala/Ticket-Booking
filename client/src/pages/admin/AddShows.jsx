@@ -113,49 +113,59 @@ const AddShows = () => {
     }
   };
 
-  return nowPlayingMovies.length > 0 ? (
+  return (
     <>
       <Title text1="Add" text2="Shows" />
 
       <p className="mt-10 text-lg font-medium">Now Playing Movies</p>
 
-      <div className="overflow-x-auto pb-4">
-        <div className="group flex flex-wrap gap-4 mt-4 w-max">
-          {nowPlayingMovies.map((movie) => (
-            <div
-              key={movie.id}
-              className="relative max-w-40 cursor-pointer ..."
-              onClick={() => setSelectedMovies(movie.id)}
-            >
-              <div className="relative rounded-lg overflow-hidden">
-                <img
-                  src={image_base_url + movie.poster_path}
-                  alt="Add-Show_Image"
-                  className="w-full object-cover brightness-90"
-                />
-                <div className="text-sm flex items-center justify-between p-2 bg-black w-full absolute bottom-0 left-0">
-                  <p className="flex items-center gap-1 text-gray-400">
-                    <StarIcon className="w-4 h-4 text-primary fill-primary" />
-                    {movie.vote_average}
-                  </p>
-                  <p className="text-gray-300">
-                    {KConverter(movie.vote_count)} Votes
-                  </p>
-                </div>
-              </div>
-              {selectedMovies === movie.id && (
-                <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
-                  <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
-                </div>
-              )}
+      {nowPlayingMovies.length === 0 ? (
+        <p className="mt-4 text-sm text-gray-400">
+          No now-playing movies are available yet. Add movies from the Movies section first.
+        </p>
+      ) : (
+        <div className="overflow-x-auto pb-4">
+          <div className="group flex flex-wrap gap-4 mt-4 w-max">
+            {nowPlayingMovies.map((movie) => {
+              const posterUrl = movie.poster_path?.startsWith('http')
+                ? movie.poster_path
+                : image_base_url + movie.poster_path;
 
-              <p className="font-medium truncate">{movie.title}</p>
+              return (
+                <div
+                  key={movie._id}
+                  className="relative max-w-40 cursor-pointer"
+                  onClick={() => setSelectedMovies(movie._id)}
+                >
+                  <div className="relative rounded-lg overflow-hidden">
+                    <img
+                      src={posterUrl}
+                      alt="Add-Show_Image"
+                      className="w-full object-cover brightness-90"
+                    />
+                    <div className="text-sm flex items-center justify-between p-2 bg-black w-full absolute bottom-0 left-0">
+                      <p className="flex items-center gap-1 text-gray-400">
+                        <StarIcon className="w-4 h-4 text-primary fill-primary" />
+                        {Number(movie.vote_average || 0).toFixed(1)}
+                      </p>
+                      <p className="text-gray-300">{movie.runtime}m</p>
+                    </div>
+                  </div>
+                  {selectedMovies === movie._id && (
+                    <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
+                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
 
-              <p className="text-gray-400 text-sm">{movie.release_date}</p>
-            </div>
-          ))}
+                  <p className="font-medium truncate">{movie.title}</p>
+
+                  <p className="text-gray-400 text-sm">{movie.release_date}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Price Input  */}
 
@@ -213,7 +223,7 @@ const AddShows = () => {
                   {times.map((time) => (
                     <div
                       key={`${date}-${time}`}
-                      className="border border-primary px-2 py-1 ..."
+                      className="border border-primary px-2 py-1"
                     >
                       <span>{time}</span>
 
@@ -239,8 +249,6 @@ const AddShows = () => {
         Add Show
       </button>
     </>
-  ) : (
-    <Loading />
   );
 };
 export default AddShows;
