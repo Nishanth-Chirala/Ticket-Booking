@@ -117,15 +117,16 @@ const AddShows = () => {
     <>
       <Title text1="Add" text2="Shows" />
 
-      <p className="mt-10 text-lg font-medium">Now Playing Movies</p>
+      <p className="mt-10 text-lg font-semibold">Now Playing Movies</p>
 
       {nowPlayingMovies.length === 0 ? (
-        <p className="mt-4 text-sm text-gray-400">
-          No now-playing movies are available yet. Add movies from the Movies section first.
+        <p className="mt-4 text-sm text-zinc-400">
+          No now-playing movies are available yet. Add movies from the Movies
+          section first.
         </p>
       ) : (
         <div className="overflow-x-auto pb-4">
-          <div className="group flex flex-wrap gap-4 mt-4 w-max">
+          <div className="mt-4 flex w-max flex-wrap gap-4">
             {nowPlayingMovies.map((movie) => {
               const posterUrl = movie.poster_path?.startsWith('http')
                 ? movie.poster_path
@@ -134,32 +135,39 @@ const AddShows = () => {
               return (
                 <div
                   key={movie._id}
-                  className="relative max-w-40 cursor-pointer"
+                  className={`relative max-w-40 cursor-pointer transition ${
+                    selectedMovies === movie._id ? 'opacity-100' : 'opacity-90 hover:opacity-100'
+                  }`}
                   onClick={() => setSelectedMovies(movie._id)}
                 >
-                  <div className="relative rounded-lg overflow-hidden">
+                  <div
+                    className={`relative overflow-hidden rounded-xl border ${
+                      selectedMovies === movie._id
+                        ? 'border-primary shadow-lg shadow-primary/20'
+                        : 'border-white/10'
+                    }`}
+                  >
                     <img
                       src={posterUrl}
-                      alt="Add-Show_Image"
+                      alt={movie.title}
                       className="w-full object-cover brightness-90"
                     />
-                    <div className="text-sm flex items-center justify-between p-2 bg-black w-full absolute bottom-0 left-0">
-                      <p className="flex items-center gap-1 text-gray-400">
-                        <StarIcon className="w-4 h-4 text-primary fill-primary" />
+                    <div className="absolute bottom-0 left-0 flex w-full items-center justify-between bg-black/80 p-2 text-sm backdrop-blur-sm">
+                      <p className="flex items-center gap-1 text-zinc-300">
+                        <StarIcon className="size-4 fill-primary text-primary" />
                         {Number(movie.vote_average || 0).toFixed(1)}
                       </p>
-                      <p className="text-gray-300">{movie.runtime}m</p>
+                      <p className="text-zinc-300">{movie.runtime}m</p>
                     </div>
                   </div>
                   {selectedMovies === movie._id && (
-                    <div className="absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded">
-                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={2.5} />
+                    <div className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-md bg-primary">
+                      <CheckIcon className="size-4 text-white" strokeWidth={2.5} />
                     </div>
                   )}
 
-                  <p className="font-medium truncate">{movie.title}</p>
-
-                  <p className="text-gray-400 text-sm">{movie.release_date}</p>
+                  <p className="mt-2 truncate font-medium">{movie.title}</p>
+                  <p className="text-sm text-zinc-400">{movie.release_date}</p>
                 </div>
               );
             })}
@@ -167,68 +175,55 @@ const AddShows = () => {
         </div>
       )}
 
-      {/* Price Input  */}
-
       <div className="mt-8">
-        <label className="block text-sm font-medium mb-2">Show Price</label>
-
-        <div className="inline-flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md">
-          <p className="text-gray-400 text-sm">{currency}</p>
-
+        <label className="mb-2 block text-sm font-medium">Show Price</label>
+        <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface px-3.5 py-2.5">
+          <p className="text-sm text-zinc-400">{currency}</p>
           <input
             type="number"
             min={0}
             value={showPrice}
             onChange={(e) => setShowPrice(e.target.value)}
             placeholder="Enter Show Price"
-            className="outline-none"
+            className="bg-transparent outline-none"
           />
         </div>
       </div>
 
-      {/* Date and Time Selection  */}
-
       <div className="mt-6">
-        <label className="block text-sm font-medium mb-2">
-          Select Date and Time
-        </label>
-        <div className="inline-flex gap-5 border border-gray-600 p-1 pl-3 rounded-lg">
+        <label className="mb-2 block text-sm font-medium">Select Date and Time</label>
+        <div className="inline-flex gap-3 rounded-xl border border-white/10 bg-surface p-1 pl-3">
           <input
             type="datetime-local"
             value={dateTimeInput}
             onChange={(e) => setDateTimeInput(e.target.value)}
-            className="outline-none rounded-md"
+            className="rounded-md bg-transparent outline-none"
           />
-
           <button
             onClick={handleDateTimeAdd}
-            className="bg-primary/80 text-white px-3 py-2 text-sm rounded-lg hover:bg-primary cursor-pointer"
+            className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dull"
           >
             Add Time
           </button>
         </div>
       </div>
 
-      {/* Selected Time Display  */}
-
       {Object.keys(dateTimeSelection).length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-2">Selected Date-Time</h2>
-
+          <h2 className="mb-3 font-semibold">Selected Date-Time</h2>
           <ul className="space-y-3">
             {Object.entries(dateTimeSelection).map(([date, times]) => (
               <li key={date}>
                 <div className="font-medium">{date}</div>
-                <div className="flex flex-wrap gap-2 mt-1 text-sm">
+                <div className="mt-1.5 flex flex-wrap gap-2 text-sm">
                   {times.map((time) => (
                     <div
                       key={`${date}-${time}`}
-                      className="border border-primary px-2 py-1"
+                      className="inline-flex items-center rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1"
                     >
                       <span>{time}</span>
-
                       <DeleteIcon
-                        className="ml-2 text-red-500 hover:text-red-700"
+                        className="ml-2 cursor-pointer text-red-400 transition hover:text-red-300"
                         width={15}
                         onClick={() => handleRemoveTime(date, time)}
                       />
@@ -244,7 +239,7 @@ const AddShows = () => {
       <button
         onClick={handleSubmit}
         disabled={addingShow}
-        className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer"
+        className="mt-8 cursor-pointer rounded-full bg-primary px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dull disabled:opacity-60"
       >
         Add Show
       </button>

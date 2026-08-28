@@ -35,43 +35,40 @@ const ListBookings = () => {
     <>
       <Title text1="List" text2="Bookings" />
 
-      <div className="max-w-4xl mt-6 overflow-x-auto">
-        <table className="w-full border-collapse rounded-md overflow-hidden text-nowrap">
-          <thead>
-            <tr className="bg-primary/20 text-left text-white">
-              <th className="p-2 font-medium pl-5">User Name</th>
-              <th className="p-2 font-medium">Movie Name</th>
-              <th className="p-2 font-medium">Show Time</th>
-              <th className="p-2 font-medium">Seats</th>
-              <th className="p-2 font-medium">Amount</th>
-            </tr>
-          </thead>
-
-          <tbody className="text-sm font-light">
-            {bookings?.map((item, index) => (
-              <tr
-                key={index}
-                className="border-b border-primary/20 bg-primary/5 even:bg-primary/10"
-              >
-                <td className="p-2 min-w-45 pl-5">{item.user?.name}</td>
-
-                <td className="p-2 ">{item.show.movie.title}</td>
-
-                <td className="p-2">{dateFormat(item.show.showDateTime)}</td>
-
-                <td className="p-2">
-                  {Object.keys(item.bookedSeats)
-                    .map((seat) => item.bookedSeats[seat])
-                    .join(', ')}
-                </td>
-
-                <td className="p-2">
-                  {currency} {item.amount}
-                </td>
+      <div className="mt-8 max-w-4xl overflow-hidden rounded-xl border border-primary/20">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-nowrap">
+            <thead>
+              <tr className="bg-primary/20 text-left text-sm text-white">
+                <th className="p-3 pl-5 font-semibold">User Name</th>
+                <th className="p-3 font-semibold">Movie Name</th>
+                <th className="p-3 font-semibold">Show Time</th>
+                <th className="p-3 font-semibold">Seats</th>
+                <th className="p-3 font-semibold">Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-sm">
+              {bookings?.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border-t border-primary/15 bg-primary/5 even:bg-primary/10"
+                >
+                  <td className="min-w-45 p-3 pl-5 font-medium">{item.user?.name}</td>
+                  <td className="p-3">{item.show.movie.title}</td>
+                  <td className="p-3 text-zinc-300">{dateFormat(item.show.showDateTime)}</td>
+                  <td className="p-3 text-zinc-300">
+                    {Object.keys(item.bookedSeats)
+                      .map((seat) => item.bookedSeats[seat])
+                      .join(', ')}
+                  </td>
+                  <td className="p-3 font-medium">
+                    {currency} {item.amount}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   ) : (

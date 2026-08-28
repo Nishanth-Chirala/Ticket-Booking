@@ -11,19 +11,20 @@ const Layout = () => {
   useEffect(() => {
     fetchIsAdmin();
   }, []);
-  return isAdmin ? (
-    <>
-      <AdminNavbar />
 
+  return isAdmin ? (
+    <div className="min-h-screen bg-[#09090b]">
+      <AdminNavbar />
       <div className="flex">
         <AdminSideBar />
-        <div className="flex-1 px-4 py-10 md:px-10 h-[calc(100vh-64px)] overflow-y-auto">
+        <div className="h-[calc(100vh-64px)] flex-1 overflow-y-auto px-4 py-8 md:px-10 md:py-10">
           <Outlet />
         </div>
       </div>
-    </>
+    </div>
   ) : (
     <Loading />
   );
 };
+
 export default Layout;

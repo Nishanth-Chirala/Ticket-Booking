@@ -74,51 +74,58 @@ const Dashboard = () => {
 
   return !loading ? (
     <>
-      <Title text1="Admin" text2="DashBoard" />
+      <Title text1="Admin" text2="Dashboard" />
 
-      <div className="relative flex flex-wrap gap-4 mt-6">
+      <div className="relative mt-8 flex flex-wrap gap-4">
         <BlurCircle top="-100px" left="0px" />
-        <div className="flex flex-wrap gap-4 w-full">
+        <div className="flex w-full flex-wrap gap-4">
           {dashBoardCards.map((card, index) => (
             <div
               key={index}
-              className="flex items-center justify-between px-4 py-3 bg-primary/10 border border-primary/20 rounded-md max-w-50 w-full"
+              className="flex w-full max-w-50 items-center justify-between rounded-xl border border-primary/20 bg-primary/10 px-4 py-4"
             >
               <div>
-                <h1 className="text-sm">{card.title}</h1>
-                <p className="text-xl font-medium mt-1">{card.value}</p>
+                <h1 className="text-xs font-medium text-zinc-400">{card.title}</h1>
+                <p className="mt-1 text-xl font-semibold">{card.value}</p>
               </div>
-              <card.icon className="w-6 h-6" />
+              <div className="rounded-lg bg-primary/15 p-2">
+                <card.icon className="size-5 text-primary" />
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <p className="mt-10 text-lg font-medium">Active Shows</p>
-      <div className="relative flex flex-wrap gap-6 mt-4 max-w-5xl">
+      <p className="mt-12 text-lg font-semibold">Active Shows</p>
+      <div className="relative mt-5 flex max-w-5xl flex-wrap gap-5">
         <BlurCircle top="100px" left="-10%" />
         {dashBoardData.activeShows.map((show) => (
           <div
             key={show._id}
-            className="w-55 rounded-lg overflow-hidden h-full pb-3 bg-primary/10 border border-primary/20 hover:-translate-y-1 transition duration-300"
+            className="w-55 overflow-hidden rounded-xl border border-primary/20 bg-primary/10 pb-3 transition duration-300 hover:-translate-y-1 hover:border-primary/40"
           >
             <img
-              src={image_base_url + show.movie.poster_path}
-              alt="image_shows"
+              src={
+                show.movie.poster_path?.startsWith('http')
+                  ? show.movie.poster_path
+                  : image_base_url + show.movie.poster_path
+              }
+              alt={show.movie.title}
               className="h-60 w-full object-cover"
             />
-            <p className="font-medium p-2 truncate">{show.movie.title}</p>
-            <div className="flex items-center justify-between px-2">
-              <p className=" text-lg font-medium">
+
+            <p className="truncate p-3 pb-1 font-medium">{show.movie.title}</p>
+            <div className="flex items-center justify-between px-3">
+              <p className="text-lg font-semibold">
                 {currency} {show.showPrice}
               </p>
-              <p className="flex items-center gap-1 text-sm text-gray-400 mt-1 pr-1">
-                <StarIcon className="w-4 h-4 text-primary fill-primary" />
+              <p className="flex items-center gap-1 text-sm text-zinc-400">
+                <StarIcon className="size-4 fill-primary text-primary" />
                 {show.movie.vote_average.toFixed(1)}
               </p>
             </div>
 
-            <p className="px-2 pt-2 text-sm text-gray-500">
+            <p className="px-3 pt-2 text-sm text-zinc-500">
               {dateFormat(show.showDateTime)}
             </p>
           </div>
@@ -129,4 +136,5 @@ const Dashboard = () => {
     <Loading />
   );
 };
+
 export default Dashboard;

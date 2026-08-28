@@ -1,55 +1,72 @@
+import { Link } from 'react-router-dom';
 import { assets } from '../assets/assets';
 
 const Footer = () => {
   return (
-    <footer className="px-6 mt-40 md:px-16 lg:px-36 w-full text-gray-300">
-      <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-gray-500 pb-14">
-        <div className="md:max-w-96">
-          <img alt="" className="h-11" src={assets.logo} />
-          <p className="mt-6 text-sm">
-            Lorem Ipsum has been the industry's standard dummy text ever since
-            the 1500s, when an unknown printer took a galley of type and
-            scrambled it to make a type specimen book.
+    <footer className="mt-24 w-full border-t border-white/5 bg-surface/40 px-6 pt-14 text-zinc-400 md:mt-32 md:px-16 lg:px-36">
+      <div className="flex w-full flex-col justify-between gap-12 border-b border-white/10 pb-12 md:flex-row md:gap-16">
+        <div className="md:max-w-sm">
+          <img alt="QuickShow" className="h-10" src={assets.logo} />
+          <p className="mt-5 text-sm leading-relaxed text-zinc-400">
+            Book cinema tickets in seconds. Discover what&apos;s playing, pick
+            your seats, and enjoy the show — all in one place.
           </p>
-          <div className="flex items-center gap-2 mt-4">
+          <div className="mt-6 flex items-center gap-3">
             <img
               src={assets.googlePlay}
-              alt="google play"
-              className="h-9 w-auto"
+              alt="Google Play"
+              className="h-9 w-auto opacity-90 transition hover:opacity-100"
             />
-            <img src={assets.appStore} alt="app store" className="h-9 w-auto" />
+            <img
+              src={assets.appStore}
+              alt="App Store"
+              className="h-9 w-auto opacity-90 transition hover:opacity-100"
+            />
           </div>
         </div>
-        <div className="flex-1 flex items-start md:justify-end gap-20 md:gap-40">
+
+        <div className="flex flex-1 items-start gap-16 md:justify-end md:gap-24">
           <div>
-            <h2 className="font-semibold mb-5">Company</h2>
-            <ul className="text-sm space-y-2">
+            <h2 className="mb-4 text-sm font-semibold tracking-wide text-white uppercase">
+              Company
+            </h2>
+            <ul className="space-y-2.5 text-sm">
               <li>
-                <a href="#">Home</a>
+                <Link to="/" className="transition hover:text-white">
+                  Home
+                </Link>
               </li>
               <li>
-                <a href="#">About us</a>
+                <a href="#" className="transition hover:text-white">
+                  About us
+                </a>
               </li>
               <li>
-                <a href="#">Contact us</a>
+                <a href="#" className="transition hover:text-white">
+                  Contact us
+                </a>
               </li>
               <li>
-                <a href="#">Privacy policy</a>
+                <a href="#" className="transition hover:text-white">
+                  Privacy policy
+                </a>
               </li>
             </ul>
           </div>
           <div>
-            <h2 className="font-semibold mb-5">Get in touch</h2>
-            <div className="text-sm space-y-2">
+            <h2 className="mb-4 text-sm font-semibold tracking-wide text-white uppercase">
+              Get in touch
+            </h2>
+            <div className="space-y-2.5 text-sm">
               <p>+1-234-567-890</p>
-              <p>contact@example.com</p>
+              <p>contact@quickshow.com</p>
             </div>
           </div>
         </div>
       </div>
-      <p className="pt-4 text-center text-sm pb-5">
-        Copyright {new Date().getFullYear()} ©
-        <a href="https://prebuiltui.com">QuickShow</a>. All Right Reserved.
+
+      <p className="py-6 text-center text-xs text-zinc-500">
+        Copyright {new Date().getFullYear()} © QuickShow. All rights reserved.
       </p>
     </footer>
   );

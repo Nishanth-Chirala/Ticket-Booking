@@ -6,8 +6,12 @@ import MovieDetails from './pages/MovieDetails';
 import SeatLayout from './pages/SeatLayout';
 import MyBookings from './pages/MyBookings';
 import Favorite from './pages/Favorite';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import Loading from './components/Loading';
 import { Toaster } from 'react-hot-toast';
 import Layout from './pages/admin/Layout';
 import Dashboard from './pages/admin/Dashboard';
@@ -15,38 +19,48 @@ import AddShows from './pages/admin/AddShows';
 import AddMovies from './pages/admin/AddMovies';
 import ListShows from './pages/admin/ListShows';
 import ListBookings from './pages/admin/ListBookings';
-import { useAppContext } from './context/AppContext';
-import { SignIn } from '@clerk/clerk-react';
-import Loading from './components/Loading';
+import AdminRequests from './pages/admin/AdminRequests';
 
 const App = () => {
-  const isAdminRoute = useLocation().pathname.startsWith('/admin');
-
-  const { user } = useAppContext();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAuthPage =
+    location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <>
       <Toaster />
-      {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && !isAuthPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<MovieDetails />} />
         <Route path="/movies/:id/:date" element={<SeatLayout />} />
-        <Route path="/my-bookings" element={<MyBookings />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/loading/:nextUrl" element={<Loading />} />
-
-        <Route path="/favorite" element={<Favorite />} />
+        <Route
+          path="/favorite"
+          element={
+            <ProtectedRoute>
+              <Favorite />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/*"
           element={
-            user ? (
+            <ProtectedRoute adminOnly>
               <Layout />
-            ) : (
-              <div className="min-h-screen flex justify-center items-center">
-                <SignIn fallbackRedirectUrl={'/admin'} />
-              </div>
-            )
+            </ProtectedRoute>
           }
         >
           <Route index element={<Dashboard />} />
@@ -54,10 +68,12 @@ const App = () => {
           <Route path="add-shows" element={<AddShows />} />
           <Route path="list-shows" element={<ListShows />} />
           <Route path="list-bookings" element={<ListBookings />} />
+          <Route path="requests" element={<AdminRequests />} />
         </Route>
       </Routes>
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && !isAuthPage && <Footer />}
     </>
   );
 };
+
 export default App;

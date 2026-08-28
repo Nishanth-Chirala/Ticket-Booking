@@ -1,25 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #f84565;
-  --color-primary: #d63854;
+  --color-primary: #e11d48;
+  --color-primary-dull: #be123c;
+  --color-surface: #121216;
+  --color-surface-2: #1a1a22;
+  --color-muted: #a1a1aa;
 }
 
 * {
   font-family: 'Outfit', sans-serif;
   scrollbar-width: thin;
-  scrollbar-color: #787777 #1e1e1e;
+  scrollbar-color: #3f3f46 #0c0c0f;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: white;
+  color: #fafafa;
   background-color: #09090b;
+  -webkit-font-smoothing: antialiased;
 }
 
-no-scrollbar {
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  color: white;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 input::-webkit-outer-spin-button,

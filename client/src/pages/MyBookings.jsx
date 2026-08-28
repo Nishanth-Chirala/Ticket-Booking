@@ -8,11 +8,8 @@ import { Link } from 'react-router-dom';
 
 const MyBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY;
-
   const [bookings, setBookings] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const { axios, getToken, user, image_base_url } = useAppContext();
 
   const getMyBookings = async () => {
@@ -38,67 +35,96 @@ const MyBookings = () => {
   }, [user]);
 
   return !loading ? (
-    <div className="relative pc-6 md:px-16 lg:px-40 placeholder-teal-300 md:pt-40 min-h-[80vh]">
+    <div className="relative min-h-[80vh] px-6 pt-28 pb-20 md:px-16 md:pt-36 lg:px-40">
       <BlurCircle top="100px" left="100px" />
+      <BlurCircle bottom="0px" left="600px" />
 
-      <div>
-        <BlurCircle bottom="0px" left="600px" />
+      <div className="mb-8">
+        <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+          Account
+        </p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">My Bookings</h1>
       </div>
-      <h1 className="text-lg font-semibold mb-4">My Bookings</h1>
 
-      {bookings.map((item, index) => (
-        <div
-          key={index}
-          className="flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl"
-        >
-          <div className="flex flex-col md:flex-row">
-            <img
-              src={image_base_url + item.show.movie.poster_path}
-              alt=""
-              className="md:max-w-45 aspect-video h-auto object-bottom object-cover rounded"
-            />
-            <div className="flex flex-col p-4">
-              <p className="text-lg font-semibold">{item.show.movie.title}</p>
-              <p className="text-gray-400 text-sm">
-                {timeFormat(item.show.movie.runtime)}
-              </p>
-              <p className="text-gray-400 text-sm mt-auto">
-                {dateFormat(item.show.showDateTime)}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:items-end md:text-right justify-between p-4">
-            <div className="flex items-center gap-4">
-              <p className="text-2xl font-semibold mb-3 min-w-[80px] text-right tabular-nums">
-                {currency} {item.amount}
-              </p>
-              {!item.isPaid && (
-                <Link
-                  to={item.paymentLink}
-                  className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer"
-                >
-                  Pay Now
-                </Link>
-              )}
-            </div>
-
-            <div className="text-sm">
-              <p>
-                <span className="text-gray-400">Total Tickets:</span>
-                {item.bookedSeats.length}
-              </p>
-              <p>
-                <span className="text-gray-400">Seat Number:</span>
-                {item.bookedSeats.join(', ')}
-              </p>
-            </div>
-          </div>
+      {bookings.length === 0 ? (
+        <div className="rounded-2xl border border-white/10 bg-surface-2 px-6 py-16 text-center">
+          <p className="text-lg font-medium">No bookings yet</p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Your tickets will appear here after you book a show.
+          </p>
+          <Link
+            to="/movies"
+            className="mt-6 inline-flex rounded-full bg-primary px-6 py-2.5 text-sm font-semibold transition hover:bg-primary-dull"
+          >
+            Browse Movies
+          </Link>
         </div>
-      ))}
+      ) : (
+        bookings.map((item, index) => (
+          <div
+            key={index}
+            className="mt-4 flex max-w-3xl flex-col justify-between overflow-hidden rounded-2xl border border-primary/20 bg-primary/8 md:flex-row"
+          >
+            <div className="flex flex-col md:flex-row">
+              <img
+                src={
+                  item.show.movie.poster_path?.startsWith('http')
+                    ? item.show.movie.poster_path
+                    : image_base_url + item.show.movie.poster_path
+                }
+                alt={item.show.movie.title}
+                className="aspect-video h-auto object-cover object-bottom md:max-w-45"
+              />
+
+              <div className="flex flex-col p-4 md:p-5">
+                <p className="text-lg font-semibold">{item.show.movie.title}</p>
+                <p className="mt-1 text-sm text-zinc-400">
+                  {timeFormat(item.show.movie.runtime)}
+                </p>
+                <p className="mt-auto pt-3 text-sm text-zinc-400">
+                  {dateFormat(item.show.showDateTime)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between border-t border-primary/10 p-4 md:items-end md:border-t-0 md:border-l md:p-5 md:text-right">
+              <div className="flex items-center gap-3 md:justify-end">
+                <p className="min-w-[80px] text-2xl font-semibold tabular-nums">
+                  {currency} {item.amount}
+                </p>
+                {!item.isPaid && (
+                  <Link
+                    to={item.paymentLink}
+                    className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold transition hover:bg-primary-dull"
+                  >
+                    Pay Now
+                  </Link>
+                )}
+                {item.isPaid && (
+                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-400">
+                    Paid
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-4 space-y-1 text-sm md:mt-0">
+                <p>
+                  <span className="text-zinc-400">Total Tickets: </span>
+                  {item.bookedSeats.length}
+                </p>
+                <p>
+                  <span className="text-zinc-400">Seat Number: </span>
+                  {item.bookedSeats.join(', ')}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   ) : (
     <Loading />
   );
 };
+
 export default MyBookings;

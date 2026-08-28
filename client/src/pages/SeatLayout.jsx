@@ -13,8 +13,6 @@ const SeatLayout = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [show, setShow] = useState(null);
-  
-
   const [occupiedSeats, setOccupiedSeats] = useState([]);
 
   const groupRows = [
@@ -55,19 +53,24 @@ const SeatLayout = () => {
         : [...prev, seatId]
     );
   };
+
   const renderSeats = (row, count = 9) => (
-    <div key={row} className="flex gap-2 mt-2">
+    <div key={row} className="mt-2 flex gap-2">
       <div className="flex flex-wrap items-center justify-center gap-2">
         {Array.from({ length: count }, (_, i) => {
           const seatId = `${row}${i + 1}`;
+          const isSelected = selectedSeats.includes(seatId);
+          const isOccupied = occupiedSeats.includes(seatId);
+
           return (
             <button
               key={seatId}
               onClick={() => handleSeatClick(seatId)}
-              className={`h-8 w-8 rounded border border-primary/60 cursor-pointer
-                 ${selectedSeats.includes(seatId) && 'bg-primary text-white'} ${
-                occupiedSeats.includes(seatId) && 'opacity-50'
-              }`}
+              className={`h-8 w-8 cursor-pointer rounded-md border text-[10px] font-medium transition ${
+                isSelected
+                  ? 'border-primary bg-primary text-white shadow-md shadow-primary/30'
+                  : 'border-primary/40 text-zinc-300 hover:border-primary hover:bg-primary/15'
+              } ${isOccupied ? 'cursor-not-allowed opacity-40' : ''}`}
             >
               {seatId}
             </button>
@@ -144,43 +147,47 @@ const SeatLayout = () => {
   }, [selectedTime]);
 
   return show ? (
-    <div className="flex flex-col md:flex-row px-6 md:px-16 lg:px-40 py-30 md:pt-50">
-      {/* Timings */}
-
-      <div className="w-60 bg-primary/10 border border-primary/20 rounded-lg py-10 h-max md:sticky md:top-30">
-        <p className="text-lg font-semibold px-6">Available Timings</p>
+    <div className="flex flex-col gap-10 px-6 pt-28 pb-16 md:flex-row md:gap-12 md:px-16 md:pt-36 lg:px-40">
+      <aside className="h-max w-full overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 py-8 md:sticky md:top-28 md:w-64">
+        <p className="px-6 text-lg font-semibold">Available Timings</p>
+        <p className="mt-1 px-6 text-xs text-zinc-400">Pick a showtime for {date}</p>
 
         <div className="mt-5 space-y-1">
           {show.dateTime[date].map((item) => (
             <div
               key={item.time}
               onClick={() => setSelectedTime(item)}
-              className={`flex items-center gap-2 px-6 py-2 w-max rounded-r-md cursor-pointer transition ${
+              className={`flex w-full cursor-pointer items-center gap-2 px-6 py-2.5 transition md:w-max md:rounded-r-lg ${
                 selectedTime?.time === item.time
                   ? 'bg-primary text-white'
                   : 'hover:bg-primary/20'
               }`}
             >
               <ClockIcon className="size-4" />
-              <p className="text-sm">{isoTimeFormat(item.time)}</p>
+              <p className="text-sm font-medium">{isoTimeFormat(item.time)}</p>
             </div>
           ))}
         </div>
-      </div>
+      </aside>
 
-      {/* Seat Layout */}
-
-      <div className="relative flex flex-1 flex-col items-center max-md:mt-16">
+      <div className="relative flex flex-1 flex-col items-center">
         <BlurCircle top="-100px" left="-100px" />
         <BlurCircle bottom="0px" right="0px" />
 
-        <h1 className="text-2xl font-semibold mb-4">Select Your Seats</h1>
-        <img src={assets.screenImage} alt="screen" />
+        <h1 className="mb-2 text-2xl font-semibold tracking-tight md:text-3xl">
+          Select Your Seats
+        </h1>
+        <p className="mb-6 text-sm text-zinc-400">
+          {selectedSeats.length}/5 seats selected
+        </p>
 
-        <p className="text-gray-400 text-sm mb-6">SCREEN SIDE</p>
+        <img src={assets.screenImage} alt="screen" className="max-w-full" />
+        <p className="mt-2 mb-8 text-xs tracking-[0.25em] text-zinc-500 uppercase">
+          Screen Side
+        </p>
 
-        <div className="flex flex-col items-center mt-10 text-xs text-gray-300">
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-8 md:gap-2 mb-6">
+        <div className="flex flex-col items-center text-xs text-zinc-300">
+          <div className="mb-6 grid grid-cols-2 gap-8 md:grid-cols-1 md:gap-2">
             {groupRows[0].map((row) => renderSeats(row))}
           </div>
           <div className="grid grid-cols-2 gap-11">
@@ -190,12 +197,25 @@ const SeatLayout = () => {
           </div>
         </div>
 
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-400">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-3 w-3 rounded-sm border border-primary/40" /> Available
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-3 w-3 rounded-sm bg-primary" /> Selected
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-3 w-3 rounded-sm border border-primary/40 opacity-40" />{' '}
+            Booked
+          </span>
+        </div>
+
         <button
           onClick={bookTickets}
-          className="flex items-center gap-1 mt-20 px-20 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer active:scale-95"
+          className="mt-12 inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-12 py-3.5 text-sm font-semibold transition hover:bg-primary-dull active:scale-[0.98]"
         >
-          Proceed To CheckOut
-          <ArrowRight strokeWidth={3} className="w-4 h-4" />
+          Proceed To Checkout
+          <ArrowRight strokeWidth={2.5} className="size-4" />
         </button>
       </div>
     </div>
@@ -203,4 +223,5 @@ const SeatLayout = () => {
     <Loading />
   );
 };
+
 export default SeatLayout;

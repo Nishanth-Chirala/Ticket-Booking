@@ -23,6 +23,7 @@ const AddMovies = () => {
   const { axios, getToken } = useAppContext();
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingField, setUploadingField] = useState(null);
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -48,6 +49,61 @@ const AddMovies = () => {
       ...prev,
       castMembers: prev.castMembers.filter((_, itemIndex) => itemIndex !== index),
     }));
+  };
+
+  const uploadImage = async (file, folder, fieldKey) => {
+    if (!file) return;
+
+    try {
+      setUploadingField(fieldKey);
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', folder);
+
+      const { data } = await axios.post('/api/upload', formData, {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (!data.success) {
+        toast.error(data.message || 'Image upload failed');
+        return null;
+      }
+
+      toast.success('Image uploaded');
+      return data.url;
+    } catch (error) {
+      console.error('Image upload failed', error);
+      toast.error('Unable to upload image right now');
+      return null;
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
+  const handlePosterUpload = async (event) => {
+    const url = await uploadImage(event.target.files?.[0], 'ticket-booking/posters', 'poster');
+    if (url) updateField('posterImage', url);
+    event.target.value = '';
+  };
+
+  const handleBannerUpload = async (event) => {
+    const url = await uploadImage(event.target.files?.[0], 'ticket-booking/banners', 'banner');
+    if (url) updateField('bannerImage', url);
+    event.target.value = '';
+  };
+
+  const handleCastUpload = async (index, event) => {
+    const url = await uploadImage(
+      event.target.files?.[0],
+      'ticket-booking/cast',
+      `cast-${index}`
+    );
+    if (url) updateCastMember(index, 'image', url);
+    event.target.value = '';
   };
 
   const handleSubmit = async (event) => {
@@ -82,18 +138,18 @@ const AddMovies = () => {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div>
       <Title text1="Add" text2="Movies" />
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl">
-        <div className="grid md:grid-cols-2 gap-4">
-          <label className="flex flex-col gap-2 text-sm">
-            <span>Movie Title</span>
+      <form onSubmit={handleSubmit} className="mt-8 max-w-4xl space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-2 text-sm text-zinc-300">
+            <span className="font-medium text-zinc-200">Movie Title</span>
             <input
               required
               value={form.title}
               onChange={(event) => updateField('title', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -102,7 +158,7 @@ const AddMovies = () => {
             <select
               value={form.status}
               onChange={(event) => updateField('status', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             >
               <option value="Now Playing">Now Playing</option>
               <option value="Coming Soon">Coming Soon</option>
@@ -117,7 +173,7 @@ const AddMovies = () => {
               value={form.description}
               onChange={(event) => updateField('description', event.target.value)}
               rows="3"
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -128,7 +184,7 @@ const AddMovies = () => {
               value={form.genres}
               onChange={(event) => updateField('genres', event.target.value)}
               placeholder="Action, Drama"
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -138,7 +194,7 @@ const AddMovies = () => {
               required
               value={form.language}
               onChange={(event) => updateField('language', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -149,7 +205,7 @@ const AddMovies = () => {
               type="date"
               value={form.releaseDate}
               onChange={(event) => updateField('releaseDate', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -160,36 +216,59 @@ const AddMovies = () => {
               type="number"
               value={form.duration}
               onChange={(event) => updateField('duration', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
-          <label className="flex flex-col gap-2 text-sm">
-            <span>Poster Image URL</span>
+          <div className="flex flex-col gap-2 text-sm">
+            <span>Poster Image</span>
             <input
-              required
-              value={form.posterImage}
-              onChange={(event) => updateField('posterImage', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              type="file"
+              accept="image/*"
+              onChange={handlePosterUpload}
+              disabled={uploadingField === 'poster'}
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50 file:mr-3 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm"
             />
-          </label>
+            
+            {uploadingField === 'poster' && (
+              <span className="text-xs text-gray-400">Uploading poster...</span>
+            )}
+            {form.posterImage && (
+              <img
+                src={form.posterImage}
+                alt="Poster preview"
+                className="mt-1 h-32 w-auto rounded object-cover"
+              />
+            )}
+          </div>
 
-          <label className="flex flex-col gap-2 text-sm">
-            <span>Banner Image URL</span>
+          <div className="flex flex-col gap-2 text-sm">
+            <span>Banner Image</span>
             <input
-              required
-              value={form.bannerImage}
-              onChange={(event) => updateField('bannerImage', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              type="file"
+              accept="image/*"
+              onChange={handleBannerUpload}
+              disabled={uploadingField === 'banner'}
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50 file:mr-3 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm"
             />
-          </label>
+            {uploadingField === 'banner' && (
+              <span className="text-xs text-gray-400">Uploading banner...</span>
+            )}
+            {form.bannerImage && (
+              <img
+                src={form.bannerImage}
+                alt="Banner preview"
+                className="mt-1 h-32 w-full rounded object-cover"
+              />
+            )}
+          </div>
 
           <label className="flex flex-col gap-2 text-sm">
             <span>Trailer URL</span>
             <input
               value={form.trailerUrl}
               onChange={(event) => updateField('trailerUrl', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -201,7 +280,7 @@ const AddMovies = () => {
               step="0.1"
               value={form.rating}
               onChange={(event) => updateField('rating', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
 
@@ -210,18 +289,18 @@ const AddMovies = () => {
             <input
               value={form.director}
               onChange={(event) => updateField('director', event.target.value)}
-              className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+              className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
             />
           </label>
         </div>
 
-        <div className="rounded-lg border border-gray-700 p-4">
+        <div className="rounded-2xl border border-white/10 bg-surface-2/50 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Cast Members</h3>
+            <h3 className="font-semibold">Cast Members</h3>
             <button
               type="button"
               onClick={addCastMember}
-              className="rounded bg-primary px-3 py-1.5 text-sm"
+              className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium transition hover:bg-primary-dull"
             >
               Add Cast
             </button>
@@ -229,25 +308,43 @@ const AddMovies = () => {
 
           <div className="mt-4 space-y-3">
             {form.castMembers.map((member, index) => (
-              <div key={index} className="grid md:grid-cols-3 gap-3 rounded border border-gray-700 p-3">
+              <div
+                key={index}
+                className="grid gap-3 rounded-xl border border-white/10 bg-surface p-4 md:grid-cols-3"
+              >
                 <input
                   placeholder="Actor name"
                   value={member.name}
                   onChange={(event) => updateCastMember(index, 'name', event.target.value)}
-                  className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+                  className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
                 />
                 <input
                   placeholder="Character name"
                   value={member.characterName}
-                  onChange={(event) => updateCastMember(index, 'characterName', event.target.value)}
-                  className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
+                  onChange={(event) =>
+                    updateCastMember(index, 'characterName', event.target.value)
+                  }
+                  className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50"
                 />
-                <input
-                  placeholder="Profile image URL"
-                  value={member.image}
-                  onChange={(event) => updateCastMember(index, 'image', event.target.value)}
-                  className="rounded-md border border-gray-600 bg-gray-950 px-3 py-2"
-                />
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => handleCastUpload(index, event)}
+                    disabled={uploadingField === `cast-${index}`}
+                    className="rounded-xl border border-white/10 bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/50 file:mr-3 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm"
+                  />
+                  {uploadingField === `cast-${index}` && (
+                    <span className="text-xs text-gray-400">Uploading cast image...</span>
+                  )}
+                  {member.image && (
+                    <img
+                      src={member.image}
+                      alt={`${member.name || 'Cast'} preview`}
+                      className="h-20 w-20 rounded object-cover"
+                    />
+                  )}
+                </div>
                 {form.castMembers.length > 1 && (
                   <button
                     type="button"
@@ -264,8 +361,8 @@ const AddMovies = () => {
 
         <button
           type="submit"
-          disabled={submitting}
-          className="rounded bg-primary px-6 py-2 text-sm font-medium disabled:opacity-60"
+          disabled={submitting || Boolean(uploadingField)}
+          className="rounded-full bg-primary px-8 py-2.5 text-sm font-semibold transition hover:bg-primary-dull disabled:opacity-60"
         >
           {submitting ? 'Saving...' : 'Save Movie'}
         </button>

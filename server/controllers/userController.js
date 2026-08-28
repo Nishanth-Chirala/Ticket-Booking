@@ -1,14 +1,12 @@
-import { clerkClient } from '@clerk/express';
 import Booking from '../models/Booking.js';
 import Movie from '../models/Movie.js';
-
-// Function to get User Bookings
+import User from '../models/User.js';
 
 export const getUserBookings = async (req, res) => {
   try {
-    const user = req.auth().userId;
+    const userId = req.user._id.toString();
 
-    const bookings = await Booking.find({ user })
+    const bookings = await Booking.find({ user: userId })
       .populate({
         path: 'show',
         populate: {
@@ -24,30 +22,18 @@ export const getUserBookings = async (req, res) => {
   }
 };
 
-// Function to update Favourite Movie
-
 export const updatFavorite = async (req, res) => {
   try {
     const { movieId } = req.body;
-    const userId = req.auth().userId;
+    const user = await User.findById(req.user._id);
 
-    const user = await clerkClient.users.getUser(userId);
-
-    if (!user.privateMetadata.favorites) {
-      user.privateMetadata.favorites = [];
-    }
-
-    if (!user.privateMetadata.favorites.includes(movieId)) {
-      user.privateMetadata.favorites.push(movieId);
+    if (!user.favorites.includes(movieId)) {
+      user.favorites.push(movieId);
     } else {
-      user.privateMetadata.favorites = user.privateMetadata.favorites.filter(
-        (item) => item !== movieId
-      );
+      user.favorites = user.favorites.filter((item) => item !== movieId);
     }
 
-    await clerkClient.users.updateUserMetadata(userId, {
-      privateMetadata: user.privateMetadata,
-    });
+    await user.save();
 
     res.json({ success: true, message: 'Favorite Movies Updated' });
   } catch (error) {
@@ -56,15 +42,10 @@ export const updatFavorite = async (req, res) => {
   }
 };
 
-// Function to get All Favorite Movies
-
 export const getFavorite = async (req, res) => {
   try {
-    const user = await clerkClient.users.getUser(req.auth().userId);
-
-    const favorites = user.privateMetadata.favorites;
-
-    const movies = await Movie.find({ _id: { $in: favorites } });
+    const user = await User.findById(req.user._id);
+    const movies = await Movie.find({ _id: { $in: user.favorites } });
 
     res.json({ success: true, movies });
   } catch (error) {

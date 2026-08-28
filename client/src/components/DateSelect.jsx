@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 const DateSelect = ({ dateTime, id }) => {
   const [selected, setSelected] = useState(null);
-
   const navigate = useNavigate();
 
   const onBookHandler = () => {
@@ -18,30 +17,35 @@ const DateSelect = ({ dateTime, id }) => {
   };
 
   return (
-    <div id="dateSelect" className="pt-30">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative p-8 bg-primary/10 border border-primary/20 rounded-lg">
+    <div id="dateSelect" className="pt-16 md:pt-24">
+      <div className="relative flex flex-col items-center justify-between gap-8 overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 p-6 md:flex-row md:gap-10 md:p-8">
         <BlurCircle top="-100px" left="-100px" />
         <BlurCircle top="100px" right="0px" />
 
-        <div>
+        <div className="w-full">
           <p className="text-lg font-semibold">Choose Date</p>
+          <p className="mt-1 text-sm text-zinc-400">
+            Select a show date to continue booking
+          </p>
 
-          <div className="flex items-center gap-6 text-sm mt-5">
-            <ChevronLeftIcon width={28} />
+          <div className="mt-6 flex items-center gap-4 text-sm md:gap-6">
+            <ChevronLeftIcon width={24} className="shrink-0 text-zinc-400" />
 
-            <span className="grid grid-cols-3 md:flex flex-wrap md:max-w-lg gap-4">
+            <span className="grid grid-cols-3 flex-wrap gap-3 md:flex md:max-w-lg md:gap-4">
               {Object.keys(dateTime).map((date) => (
                 <button
                   onClick={() => setSelected(date)}
                   key={date}
-                  className={`flex flex-col items-center justify-center h-14 w-14 aspect-square rounded cursor-pointer ${
+                  className={`flex aspect-square h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-xl transition ${
                     selected === date
-                      ? 'bg-primary text-white'
-                      : 'border border-primary/70'
+                      ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                      : 'border border-primary/40 hover:border-primary hover:bg-primary/10'
                   }`}
                 >
-                  <span>{new Date(date).getDate()}</span>
-                  <span>
+                  <span className="text-base font-semibold">
+                    {new Date(date).getDate()}
+                  </span>
+                  <span className="text-[11px] uppercase opacity-80">
                     {new Date(date).toLocaleDateString('en-US', {
                       month: 'short',
                     })}
@@ -49,13 +53,13 @@ const DateSelect = ({ dateTime, id }) => {
                 </button>
               ))}
             </span>
-            <ChevronRightIcon width={28} />
+            <ChevronRightIcon width={24} className="shrink-0 text-zinc-400" />
           </div>
         </div>
 
         <button
           onClick={onBookHandler}
-          className="bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer"
+          className="w-full cursor-pointer rounded-full bg-primary px-10 py-3 text-sm font-semibold transition hover:bg-primary-dull md:w-auto"
         >
           Book Now
         </button>
@@ -63,4 +67,5 @@ const DateSelect = ({ dateTime, id }) => {
     </div>
   );
 };
+
 export default DateSelect;

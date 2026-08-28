@@ -4,16 +4,14 @@ import {
   ListCollapseIcon,
   ListIcon,
   PlusSquareIcon,
+  ShieldCheck,
 } from 'lucide-react';
 import { assets } from '../../assets/assets';
 import { NavLink } from 'react-router-dom';
+import { useAppContext } from '../../context/AppContext';
 
 const AdminSideBar = () => {
-  const user = {
-    firstName: 'Admin',
-    lastName: 'User',
-    imageUrl: assets.profile,
-  };
+  const { user, isOwner } = useAppContext();
 
   const adminNavLinks = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboardIcon },
@@ -27,33 +25,50 @@ const AdminSideBar = () => {
     },
   ];
 
-  return (
-    <div className="h-[calc(100vh - 64px)] md:flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-gray-300/20 text-sm">
-      <img src={user.imageUrl} alt="image" />
+  if (isOwner) {
+    adminNavLinks.push({
+      name: 'Admin Requests',
+      path: '/admin/requests',
+      icon: ShieldCheck,
+    });
+  }
 
-      <p className="mt-2 text-base max-md:hidden">
-        {user.firstName} {user.lastName}
+  return (
+    <div className="flex h-[calc(100vh-64px)] w-full max-w-13 flex-col items-center border-r border-white/10 bg-surface pt-8 text-sm md:max-w-60">
+      <img
+        src={user?.image || assets.profile}
+        alt="Admin"
+        className="size-10 rounded-full object-cover ring-2 ring-primary/30 md:size-14"
+      />
+
+      <p className="mt-3 hidden text-base font-medium md:block">
+        {user?.name || 'Admin User'}
+      </p>
+      <p className="mt-0.5 hidden text-xs capitalize text-zinc-500 md:block">
+        {user?.role || 'admin'}
       </p>
 
-      <div className="w-full">
+      <div className="mt-6 w-full">
         {adminNavLinks.map((link, index) => (
           <NavLink
             key={index}
             to={link.path}
             end
             className={({ isActive }) =>
-              `relative flex items-center max-md:justify-center gap-2 w-full py-2.5 min-md:pl-10 first:mt-6 text-gray-400 ${
-                isActive && 'bg-primary/15 text-primary group'
+              `relative flex w-full items-center gap-2 py-2.5 text-zinc-400 transition first:mt-0 max-md:justify-center min-md:pl-10 ${
+                isActive
+                  ? 'bg-primary/15 font-medium text-primary'
+                  : 'hover:bg-white/5 hover:text-zinc-200'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <link.icon className="w-5 h-5" />
+                <link.icon className="size-5" />
                 <p className="max-md:hidden">{link.name}</p>
                 <span
-                  className={`w-1.5 h-10 rounded-l right-0 absolute ${
-                    isActive && 'bg-primary'
+                  className={`absolute right-0 h-8 w-1 rounded-l ${
+                    isActive ? 'bg-primary' : ''
                   }`}
                 />
               </>
@@ -64,4 +79,5 @@ const AdminSideBar = () => {
     </div>
   );
 };
+
 export default AdminSideBar;
