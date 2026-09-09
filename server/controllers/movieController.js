@@ -4,6 +4,7 @@ import { buildMovieDocument } from '../utils/movieUtils.js';
 export const createMovie = async (req, res) => {
   try {
     const movieData = buildMovieDocument(req.body);
+    movieData.createdBy = req.user._id;
 
     const movie = await Movie.create(movieData);
 
@@ -42,10 +43,11 @@ export const getMovieById = async (req, res) => {
 export const updateMovie = async (req, res) => {
   try {
     const movieData = buildMovieDocument(req.body);
-    const movie = await Movie.findByIdAndUpdate(req.params.id, movieData, {
-      new: true,
-      runValidators: true,
-    });
+    const movie = await Movie.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id },
+      movieData,
+      { new: true, runValidators: true }
+    );
 
     if (!movie) {
       return res.status(404).json({ success: false, message: 'Movie not found' });
@@ -60,7 +62,10 @@ export const updateMovie = async (req, res) => {
 
 export const deleteMovie = async (req, res) => {
   try {
-    const movie = await Movie.findByIdAndDelete(req.params.id);
+    const movie = await Movie.findOneAndDelete({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
 
     if (!movie) {
       return res.status(404).json({ success: false, message: 'Movie not found' });

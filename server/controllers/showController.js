@@ -4,7 +4,10 @@ import { inngest } from '../inngest/index.js';
 
 export const getNowPlayingMovies = async (req, res) => {
   try {
-    const movies = await Movie.find({ status: 'Now Playing' }).sort({ createdAt: -1 });
+    const movies = await Movie.find({
+      status: 'Now Playing',
+      createdBy: req.user._id,
+    }).sort({ createdAt: -1 });
     res.json({ success: true, movies });
   } catch (error) {
     console.error(error);
@@ -15,10 +18,13 @@ export const getNowPlayingMovies = async (req, res) => {
 export const addShow = async (req, res) => {
   try {
     const { movieId, showsInput, showPrice } = req.body;
-    let movie = await Movie.findById(movieId);
+    let movie = await Movie.findOne({ _id: movieId, createdBy: req.user._id });
 
     if (!movie) {
-      return res.status(404).json({ success: false, message: 'Movie not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Movie not found or not owned by this admin',
+      });
     }
 
     const showsToCreate = [];
@@ -33,6 +39,7 @@ export const addShow = async (req, res) => {
       times.forEach((time) => {
         const dateTimeString = `${showDate}T${time}`;
         showsToCreate.push({
+          createdBy: req.user._id,
           movie: movieId,
           showDateTime: new Date(dateTimeString),
           showPrice,

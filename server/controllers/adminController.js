@@ -1,6 +1,5 @@
 import Booking from '../models/Booking.js';
 import Show from '../models/Show.js';
-import User from '../models/User.js';
 
 export const isAdmin = async (req, res) => {
   res.json({ success: true, isAdmin: true });
@@ -8,12 +7,18 @@ export const isAdmin = async (req, res) => {
 
 export const getDashBoardData = async (req, res) => {
   try {
-    const bookings = await Booking.find({ isPaid: true });
+    const shows = await Show.find({ createdBy: req.user._id }).select('_id');
+    const showIds = shows.map((show) => show._id);
+    const bookings = await Booking.find({ isPaid: true, show: { $in: showIds } });
     const activeShows = await Show.find({
+      createdBy: req.user._id,
       showDateTime: { $gte: new Date() },
     }).populate('movie');
 
-    const totalUser = await User.countDocuments();
+    const totalUser = (await Booking.distinct('user', {
+      isPaid: true,
+      show: { $in: showIds },
+    })).length;
 
     const dashBoardData = {
       totalBookings: bookings.length,
@@ -34,6 +39,7 @@ export const getDashBoardData = async (req, res) => {
 export const getAllShows = async (req, res) => {
   try {
     const shows = await Show.find({
+      createdBy: req.user._id,
       showDateTime: { $gte: new Date() },
     })
       .populate('movie')
@@ -50,7 +56,10 @@ export const getAllShows = async (req, res) => {
 
 export const getAllBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({})
+    const shows = await Show.find({ createdBy: req.user._id }).select('_id');
+    const bookings = await Booking.find({
+      show: { $in: shows.map((show) => show._id) },
+    })
       .populate('user')
       .populate({
         path: 'show',
